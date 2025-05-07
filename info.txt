@@ -1,0 +1,1 @@
+to install packages please use `` .\.venv\Scripts\Activate `` first so its intalled in the environment.
