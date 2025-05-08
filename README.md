@@ -1,4 +1,4 @@
-# Your Python Project Title
+# OS command interpreter
 
 ## Setup
 
