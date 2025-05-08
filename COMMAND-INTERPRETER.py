@@ -18,16 +18,12 @@ def translate_command(command):
     
     # Define the prompt
     prompt = (
-     "You are a Shell Command Translator.\n"
-    f"Host OS: {host_os}\n"
-    "Objective: Translate the command below exactly to its equivalent for the specified operating system.\n"
-    "- Return **only** the final command.\n"
-    "- Do **not** add any explanation, commentary, or extra text.\n"
-    "- If the target is Windows: use **only** PowerShell syntax (no CMD).\n"
-    "NOTE: the command can be extremely long — preserve the entire content.\n"
-    "── BEGIN COMMAND ──\n"
-    f"{command}\n"
-    "── END COMMAND ──"
+         f"You are a shell command translator. The host operating system is {host_os}. "
+        f"Translate the following command to its equivalent for the host operating system.\n"
+        "Return only the final command.\n"
+        "Do not add any explanation or additional text.\n"
+        f"If the target is Windows, use only PowerShell syntax (no CMD).\n"
+        f"Command: {command}"
     )
  
     # Prepare the request payload
