@@ -3,7 +3,6 @@ import requests
 import platform
 
 def translate_command(command):
-    # Detect the host operating system
     host_os = platform.system().lower()
 
     # Gemini API configuration
@@ -12,13 +11,14 @@ def translate_command(command):
     
     # Define the prompt
     prompt = (
-    f"You are a shell command translator. The host operating system is {host_os}.\n"
-    f"Translate the following command into its equivalent for {host_os}.\n"
-    "Return only the translated command—no explanations or extra text.\n"
+    f"You are a shell command translator. The target operating system is {host_os}.\n"
+    f"Translate the following command into its exact equivalent for {host_os}.\n"
     "Use PowerShell syntax if the host OS is Windows; "
-    "use POSIX shell syntax (e.g. bash) if it's Linux; "
-    "use zsh syntax if it's macOS; "
-    "and adapt appropriately for any other operating system.\n"
+    "use POSIX shell syntax (e.g. bash) if the host OS is Linux; "
+    "use zsh syntax if the host OS is macOS; "
+    "adapt appropriately for any other operating system.\n"
+    "Return only the translated command—nothing else.\n"
+    "Do not include any code fences, quotes, labels, comments, or blank lines.\n"
     f"Command: {command}"
 )
  
