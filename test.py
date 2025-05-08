@@ -1,38 +1,47 @@
 import os
 import subprocess
-from huggingface_hub import InferenceClient
+import requests
+import json
 
 def translate_command(command):
-    # Initialize the Hugging Face Inference Client
-    client = InferenceClient(
-        provider="novita",
-        api_key="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", 
-    )
-
+    # Gemini API configuration
+    api_key = "AIzaSyD3PdQngaP01mbPUW48mwk6Ej1gFTr2Ehw"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
+    
     # Define the prompt
     prompt = (
-        f"You are a linux-windows shell command translator. Detect the source operating system (Unix/Linux/macOS or Windows) "
-        f"based on the following command and provide its equivalent for the other operating system.\n"
-        f"Command: {command}\n"
-        "Return only the final command.\n"
-        "Please keep the command as short as possible and do not add any explanation or additional text.\n"
-        "my goal is to run the command i get from you so it won't work if you add any explanation or additional text.\n"
+    f"You are a shell command translator between Unix/Linux/macOS and Windows. "
+    f"Detect the source OS of the following command and output ONLY its equivalent for the other OS. "
+    f"If the target is Windows, use only PowerShell syntax (no CMD). "
+    f"Strictly return the command itself—no explanations, comments, quotes or extra text.\n"
+    f"Command: {command}\n"
     )
-
-    # Send the request to the model
+ 
+    # Prepare the request payload
+    payload = {
+        "contents": [{
+            "parts": [{"text": prompt}]
+        }]
+    }
+ 
+    # Send request to Gemini API
+    headers = {'Content-Type': 'application/json'}
     print("Processing your command...")
-    completion = client.chat.completions.create(
-        model="deepseek-ai/DeepSeek-Prover-V2-671B",
-        messages=[
-            {
-                "role": "user",
-                "content": prompt
-            }
-        ],
-    )
-
-    # Extract and return the response
-    return completion.choices[0].message["content"].strip()
+    
+    try:
+        response = requests.post(url, headers=headers, json=payload)
+        response.raise_for_status()  # Raise an exception for bad status codes
+        
+        # Parse the response
+        result = response.json()
+        if 'candidates' in result and len(result['candidates']) > 0:
+            translated_text = result['candidates'][0]['content']['parts'][0]['text']
+            return translated_text.strip()
+        else:
+            raise Exception("No valid response received from the API")
+            
+    except requests.exceptions.RequestException as e:
+        raise Exception(f"API request failed: {str(e)}")
 
 if __name__ == "__main__":
     # Get user input
@@ -44,7 +53,7 @@ if __name__ == "__main__":
             translated_command = translate_command(user_command)
             print("\nTranslated Command:")
             print(translated_command)
-        # Prompt the user to execute the command
+            # Prompt the user to execute the command
             execute = input("\nDo you want to execute this command? (y/n): ").strip().lower()
             if execute == 'y':
                 print("\nExecuting the command...")
