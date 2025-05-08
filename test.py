@@ -2,19 +2,28 @@ import os
 import subprocess
 import requests
 import json
+import platform
 
 def translate_command(command):
+    # Detect the host operating system
+    host_os = platform.system().lower()
+    if host_os.startswith("win"):
+        host_os = "windows"
+    else:
+        host_os = "unix"
+
     # Gemini API configuration
     api_key = "AIzaSyD3PdQngaP01mbPUW48mwk6Ej1gFTr2Ehw"
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={api_key}"
     
     # Define the prompt
     prompt = (
-    f"You are a shell command translator between Unix/Linux/macOS and Windows. "
-    f"Detect the source OS of the following command and output ONLY its equivalent for the other OS. "
-    f"If the target is Windows, use only PowerShell syntax (no CMD). "
-    f"Strictly return the command itself—no explanations, comments, quotes or extra text.\n"
-    f"Command: {command}\n"
+     f"You are a shell command translator. The host operating system is {host_os}. "
+        f"Translate the following command to its equivalent for the host operating system.\n"
+        "Return only the final command.\n"
+        "Do not add any explanation or additional text.\n"
+        f"If the target is Windows, use only PowerShell syntax (no CMD).\n"
+        f"Command: {command}"
     )
  
     # Prepare the request payload
@@ -58,7 +67,21 @@ if __name__ == "__main__":
             if execute == 'y':
                 print("\nExecuting the command...")
                 # Execute the command
-                result = subprocess.run(translated_command, shell=True, capture_output=True, text=True)
+                if platform.system().lower().startswith("win"):
+                    # Use PowerShell on Windows
+                    result = subprocess.run(
+                        ["powershell", "-Command", translated_command],
+                        capture_output=True,
+                        text=True
+                    )
+                else:
+                    # Use the default shell on Unix-based systems
+                    result = subprocess.run(
+                        translated_command,
+                        shell=True,
+                        capture_output=True,
+                        text=True
+                    )
                 print("\nCommand Output:")
                 print(result.stdout)
                 if result.stderr:
