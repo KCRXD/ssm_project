@@ -96,7 +96,4 @@ ricotta
 saffron
 turmeric
 
-HELLO, this video will demonstrate how our project works, it detects the host os and translates the command provided by the user.
-corresponding to their OS!!
-
-PART 1, WINDOWS HOST
+now a different command on my WINDOWS MACHINE
